@@ -1,6 +1,7 @@
 import numpy as np
 import torch
-import torch_scatter
+
+# import torch_scatter
 
 
 def pad_or_trim_to_np(x, shape, pad_val=0):

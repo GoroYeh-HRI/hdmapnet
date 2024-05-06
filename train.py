@@ -1,21 +1,21 @@
-import os
-import numpy as np
-import sys
-import logging
-from time import time
-from tensorboardX import SummaryWriter
 import argparse
+import logging
+import os
+import sys
+from time import time
 
+import numpy as np
 import torch
+from tensorboardX import SummaryWriter
 from torch.optim.lr_scheduler import StepLR
-from loss import SimpleLoss, DiscriminativeLoss
 
-from data.dataset import semantic_dataset
 from data.const import NUM_CLASSES
-from evaluation.iou import get_batch_iou
+from data.dataset import semantic_dataset
+from evaluate import eval_iou, onehot_encoding
 from evaluation.angle_diff import calc_angle_diff
+from evaluation.iou import get_batch_iou
+from loss import DiscriminativeLoss, SimpleLoss
 from model import get_model
-from evaluate import onehot_encoding, eval_iou
 
 
 def write_log(writer, ious, title, counter):
@@ -81,6 +81,12 @@ def train(args):
             semantic, embedding, direction = model(imgs.cuda(), trans.cuda(), rots.cuda(), intrins.cuda(),
                                                    post_trans.cuda(), post_rots.cuda(), lidar_data.cuda(),
                                                    lidar_mask.cuda(), car_trans.cuda(), yaw_pitch_roll.cuda())
+            
+            # print(f"len segmentation: {len(semantic)},") # Bug: embedding & direction output is None
+            # print(type(semantic))
+            # print(semantic.shape) # (1, 4, 200, 400)
+            # print(f"len embedding {len(embedding)}")
+            # print(f"len direction: {len(direction)}")            
 
             semantic_gt = semantic_gt.cuda().float()
             instance_gt = instance_gt.cuda()
@@ -146,7 +152,7 @@ if __name__ == '__main__':
     parser.add_argument("--logdir", type=str, default='./runs')
 
     # nuScenes config
-    parser.add_argument('--dataroot', type=str, default='dataset/nuScenes/')
+    parser.add_argument('--dataroot', type=str, default='/home/v0392580/planning/nuScenes/v1.0-mini-meta')
     parser.add_argument('--version', type=str, default='v1.0-mini', choices=['v1.0-trainval', 'v1.0-mini'])
 
     # model config
@@ -168,19 +174,22 @@ if __name__ == '__main__':
     # data config
     parser.add_argument("--thickness", type=int, default=5)
     parser.add_argument("--image_size", nargs=2, type=int, default=[128, 352])
+    # parser.add_argument("--image_size", nargs=2, type=int, default=[64, 176])
     parser.add_argument("--xbound", nargs=3, type=float, default=[-30.0, 30.0, 0.15])
     parser.add_argument("--ybound", nargs=3, type=float, default=[-15.0, 15.0, 0.15])
     parser.add_argument("--zbound", nargs=3, type=float, default=[-10.0, 10.0, 20.0])
     parser.add_argument("--dbound", nargs=3, type=float, default=[4.0, 45.0, 1.0])
 
     # embedding config
-    parser.add_argument('--instance_seg', action='store_true')
+    # parser.add_argument('--instance_seg', action='store_true')
+    parser.add_argument('--instance_seg', default=True) # Enable 'embedding output'    
     parser.add_argument("--embedding_dim", type=int, default=16)
     parser.add_argument("--delta_v", type=float, default=0.5)
     parser.add_argument("--delta_d", type=float, default=3.0)
 
     # direction config
-    parser.add_argument('--direction_pred', action='store_true')
+    # parser.add_argument('--direction_pred', action='store_true')
+    parser.add_argument('--direction_pred', default=True) # Enable "direction prediction"
     parser.add_argument('--angle_class', type=int, default=36)
 
     # loss config

@@ -1,13 +1,17 @@
-import os
-import tqdm
 import argparse
-import numpy as np
+import os
+import sys
+
 import matplotlib.pyplot as plt
+import numpy as np
+import tqdm
 from PIL import Image
 
-from data.dataset import HDMapNetDataset, CAMS
-from data.utils import get_proj_mat, perspective
+# sys.path.append('/home/v0392580/planning/HDMapNet')
+sys.path.append(os.path.dirname(sys.path[0]))
+from data.dataset import CAMS, HDMapNetDataset
 from data.image import denormalize_img
+from data.utils import get_proj_mat, perspective
 
 
 def vis_label(dataroot, version, xbound, ybound):
@@ -20,7 +24,7 @@ def vis_label(dataroot, version, xbound, ybound):
     color_map = np.random.randint(0, 256, (256, 3))
     color_map[0] = np.array([0, 0, 0])
     colors_plt = ['r', 'b', 'g']
-
+    print(f"dataroot {dataroot} version {version}")
     dataset = HDMapNetDataset(version=version, dataroot=dataroot, data_conf=data_conf, is_train=False)
     gt_path = os.path.join(dataroot, 'samples', 'GT')
     if not os.path.exists(gt_path):
@@ -85,8 +89,9 @@ def vis_label(dataroot, version, xbound, ybound):
 
 
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser(description='Local HD Map Demo.')
-    parser.add_argument('dataroot', type=str, default='dataset/nuScenes/')
+    parser.add_argument('--dataroot', type=str, default='/home/v0392580/planning/nuScenes/v1.0-mini-meta')
     parser.add_argument('--version', type=str, default='v1.0-mini', choices=['v1.0-trainval', 'v1.0-mini'])
     parser.add_argument("--xbound", nargs=3, type=float, default=[-30.0, 30.0, 0.15])
     parser.add_argument("--ybound", nargs=3, type=float, default=[-15.0, 15.0, 0.15])

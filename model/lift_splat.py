@@ -8,7 +8,7 @@ import torch
 from torch import nn
 
 from data.utils import gen_dx_bx
-from .base import CamEncode, BevEncode
+from model.base import BevEncode, CamEncode
 
 
 def cumsum_trick(x, geom_feats, ranks):

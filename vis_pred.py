@@ -1,14 +1,13 @@
 import argparse
-import numpy as np
-from PIL import Image
 
 import matplotlib.pyplot as plt
-
-import tqdm
+import numpy as np
 import torch
+import tqdm
+from PIL import Image
 
-from data.dataset import semantic_dataset
 from data.const import NUM_CLASSES
+from data.dataset import semantic_dataset
 from model import get_model
 from postprocess.vectorize import vectorize
 
@@ -59,7 +58,9 @@ def vis_vector(model, val_loader, angle_class):
             segmentation, embedding, direction = model(imgs.cuda(), trans.cuda(), rots.cuda(), intrins.cuda(),
                                                        post_trans.cuda(), post_rots.cuda(), lidar_data.cuda(),
                                                        lidar_mask.cuda(), car_trans.cuda(), yaw_pitch_roll.cuda())
-
+            print(f"len segmentation: {len(segmentation)},")
+            print(f"len embedding {len(embedding)}")
+            print(f"len direction: {len(direction)}")
             for si in range(segmentation.shape[0]):
                 coords, _, _ = vectorize(segmentation[si], embedding[si], direction[si], angle_class)
 
@@ -112,8 +113,8 @@ if __name__ == '__main__':
     parser.add_argument("--nepochs", type=int, default=30)
     parser.add_argument("--max_grad_norm", type=float, default=5.0)
     parser.add_argument("--pos_weight", type=float, default=2.13)
-    parser.add_argument("--bsz", type=int, default=4)
-    parser.add_argument("--nworkers", type=int, default=10)
+    parser.add_argument("--bsz", type=int, default=1)
+    parser.add_argument("--nworkers", type=int, default=1)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--weight_decay", type=float, default=1e-7)
 
@@ -130,13 +131,14 @@ if __name__ == '__main__':
     parser.add_argument("--dbound", nargs=3, type=float, default=[4.0, 45.0, 1.0])
 
     # embedding config
-    parser.add_argument('--instance_seg', action='store_true')
+    # parser.add_argument('--instance_seg', action='store_true')
+    parser.add_argument('--instance_seg', default=True)
     parser.add_argument("--embedding_dim", type=int, default=16)
     parser.add_argument("--delta_v", type=float, default=0.5)
     parser.add_argument("--delta_d", type=float, default=3.0)
 
     # direction config
-    parser.add_argument('--direction_pred', action='store_true')
+    parser.add_argument('--direction_pred', default=True)
     parser.add_argument('--angle_class', type=int, default=36)
 
     # loss config

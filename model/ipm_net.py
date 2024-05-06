@@ -1,9 +1,9 @@
 import torch
 from torch import nn
 
-from .homography import IPM, bilinear_sampler
-from .utils import plane_grid_2d, get_rot_2d, cam_to_pixel
-from .base import CamEncode, BevEncode
+from model.base import BevEncode, CamEncode
+from model.homography import IPM, bilinear_sampler
+from model.utils import cam_to_pixel, get_rot_2d, plane_grid_2d
 
 
 class IPMNet(nn.Module):

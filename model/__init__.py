@@ -1,7 +1,12 @@
-from .hdmapnet import HDMapNet
-from .ipm_net import IPMNet
-from .lift_splat import LiftSplat
-from .pointpillar import PointPillar
+# from .hdmapnet import HDMapNet
+# from .ipm_net import IPMNet
+# from .lift_splat import LiftSplat
+# from .pointpillar import PointPillar
+from model.hdmapnet import HDMapNet
+from model.ipm_net import IPMNet
+from model.lift_splat import LiftSplat
+from model.pointpillar import PointPillar
+
 
 def get_model(method, data_conf, instance_seg=True, embedded_dim=16, direction_pred=True, angle_class=36):
     if method == 'lift_splat':

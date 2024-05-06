@@ -1,8 +1,10 @@
 import torch
 import torch.nn as nn
-import torch_scatter
 
-from .voxel import points_to_voxels
+from model.voxel import points_to_voxels
+
+# import torch_scatter
+
 
 
 class PillarBlock(nn.Module):

@@ -1,24 +1,28 @@
 import os
-import numpy as np
+import sys
 
+import numpy as np
 import torch
-from PIL import Image
-from pyquaternion import Quaternion
 from nuscenes import NuScenes
 from nuscenes.utils.splits import create_splits_scenes
-
+from PIL import Image
+from pyquaternion import Quaternion
 from torch.utils.data import Dataset
+
+# sys.path.append('/home/v0392580/planning/HDMapNet/model')
+sys.path.append(os.path.dirname(sys.path[0]))
+print(sys.path)
+from data.const import CAMS, IMG_ORIGIN_H, IMG_ORIGIN_W, NUM_CLASSES
+from data.image import img_transform, normalize_img
+from data.lidar import get_lidar_data
 from data.rasterize import preprocess_map
-from .const import CAMS, NUM_CLASSES, IMG_ORIGIN_H, IMG_ORIGIN_W
-from .vector_map import VectorizedLocalMap
-from .lidar import get_lidar_data
-from .image import normalize_img, img_transform
-from .utils import label_onehot_encoding
+from data.utils import label_onehot_encoding
+from data.vector_map import VectorizedLocalMap
 from model.voxel import pad_or_trim_to_np
 
 
 class HDMapNetDataset(Dataset):
-    def __init__(self, version, dataroot, data_conf, is_train):
+    def __init__(self, version, dataroot, data_conf, is_train, verbose=True):
         super(HDMapNetDataset, self).__init__()
         patch_h = data_conf['ybound'][1] - data_conf['ybound'][0]
         patch_w = data_conf['xbound'][1] - data_conf['xbound'][0]
@@ -28,7 +32,8 @@ class HDMapNetDataset(Dataset):
         self.data_conf = data_conf
         self.patch_size = (patch_h, patch_w)
         self.canvas_size = (canvas_h, canvas_w)
-        self.nusc = NuScenes(version=version, dataroot=dataroot, verbose=False)
+        print(f"dataroot {dataroot} version {version}")
+        self.nusc = NuScenes(version=version, dataroot=dataroot, verbose=verbose)
         self.vector_map = VectorizedLocalMap(dataroot, patch_size=self.patch_size, canvas_size=self.canvas_size)
         self.scenes = self.get_scenes(version, is_train)
         self.samples = self.get_samples()

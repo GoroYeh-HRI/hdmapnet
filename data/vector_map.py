@@ -1,10 +1,11 @@
 import numpy as np
+from nuscenes.eval.common.utils import Quaternion, quaternion_yaw
 from nuscenes.map_expansion.map_api import NuScenesMap, NuScenesMapExplorer
-from nuscenes.eval.common.utils import quaternion_yaw, Quaternion
 from shapely import affinity, ops
-from shapely.geometry import LineString, box, MultiPolygon, MultiLineString
+from shapely.geometry import LineString, MultiLineString, MultiPolygon, box
 
 from .const import CLASS2LABEL
+
 
 class VectorizedLocalMap(object):
     def __init__(self,

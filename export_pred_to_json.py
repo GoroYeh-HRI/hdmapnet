@@ -1,10 +1,11 @@
 import argparse
-import mmcv
-import tqdm
-import torch
 
-from data.dataset import semantic_dataset
+import mmcv
+import torch
+import tqdm
+
 from data.const import NUM_CLASSES
+from data.dataset import semantic_dataset
 from model import get_model
 from postprocess.vectorize import vectorize
 
