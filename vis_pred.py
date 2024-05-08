@@ -42,6 +42,7 @@ def vis_segmentation(model, val_loader):
                 plt.ylim(0, 200)
                 plt.axis('off')
 
+
                 imname = f'eval{batchi:06}_{si:03}.jpg'
                 print('saving', imname)
                 plt.savefig(imname)
@@ -58,12 +59,21 @@ def vis_vector(model, val_loader, angle_class):
             segmentation, embedding, direction = model(imgs.cuda(), trans.cuda(), rots.cuda(), intrins.cuda(),
                                                        post_trans.cuda(), post_rots.cuda(), lidar_data.cuda(),
                                                        lidar_mask.cuda(), car_trans.cuda(), yaw_pitch_roll.cuda())
-            print(f"len segmentation: {len(segmentation)},")
-            print(f"len embedding {len(embedding)}")
-            print(f"len direction: {len(direction)}")
+            print(f"len segmentation: {len(segmentation.shape)},")
+            print(f"len embedding {len(embedding.shape)}")
+            print(f"len direction: {len(direction.shape)}")
+            
+            # Convert segmentation_gt to (float)
+            segmentation_gt = segmentation_gt.float()
+            # Increase shape from (3,) to (4,)
+            instance_gt = torch.unsqueeze(instance_gt, dim=0)
+            print(f"len segmentation_gt: {len(segmentation_gt.shape)},")
+            print(f"shape instance_gt {len(instance_gt.shape)}")
+            print(f"len direction_gt: {len(direction_gt.shape)}")
+
             for si in range(segmentation.shape[0]):
                 coords, _, _ = vectorize(segmentation[si], embedding[si], direction[si], angle_class)
-
+                plt.figure(1)
                 for coord in coords:
                     plt.plot(coord[:, 0], coord[:, 1], linewidth=5)
 
@@ -71,10 +81,28 @@ def vis_vector(model, val_loader, angle_class):
                 plt.ylim((0, segmentation.shape[2]))
                 plt.imshow(car_img, extent=[segmentation.shape[3]//2-15, segmentation.shape[3]//2+15, segmentation.shape[2]//2-12, segmentation.shape[2]//2+12])
 
-                img_name = f'eval{batchi:06}_{si:03}.jpg'
+                # base_path = val_loader.nusc.get_sample_data_path(val_loader.nusc.sample[si])
+                img_name = f'evals/train{batchi:06}_{si:03}.jpg'
                 print('saving', img_name)
                 plt.savefig(img_name)
                 plt.close()
+
+                plt.figure(2)
+                # Show and save for gt:
+                coords, _, _ = vectorize(segmentation_gt[si], instance_gt[si], direction_gt[si], angle_class)
+
+                for coord in coords:
+                    plt.plot(coord[:, 0], coord[:, 1], linewidth=5)
+
+                plt.xlim((0, segmentation_gt.shape[3]))
+                plt.ylim((0, segmentation_gt.shape[2]))
+                plt.imshow(car_img, extent=[segmentation_gt.shape[3]//2-15, segmentation_gt.shape[3]//2+15, segmentation_gt.shape[2]//2-12, segmentation_gt.shape[2]//2+12])
+
+                # base_path = val_loader.nusc.get_sample_data_path(val_loader.nusc.sample[si])
+                img_name = f'evals/train{batchi:06}_{si:03}-GT.jpg'
+                print('saving', img_name)
+                plt.savefig(img_name)
+                plt.close()                
 
 
 def main(args):
@@ -93,7 +121,7 @@ def main(args):
     model = get_model(args.model, data_conf, args.instance_seg, args.embedding_dim, args.direction_pred, args.angle_class)
     model.load_state_dict(torch.load(args.modelf), strict=False)
     model.cuda()
-    vis_vector(model, val_loader, args.angle_class)
+    vis_vector(model, train_loader, args.angle_class)
     # vis_segmentation(model, val_loader)
 
 
@@ -103,7 +131,7 @@ if __name__ == '__main__':
     parser.add_argument("--logdir", type=str, default='./runs')
 
     # nuScenes config
-    parser.add_argument('--dataroot', type=str, default='dataset/nuScenes/')
+    parser.add_argument('--dataroot', type=str, default='/home/v0392580/planning/nuScenes/v1.0-mini-meta')
     parser.add_argument('--version', type=str, default='v1.0-mini', choices=['v1.0-trainval', 'v1.0-mini'])
 
     # model config
