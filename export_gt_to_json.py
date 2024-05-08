@@ -1,14 +1,12 @@
 import json
 
-from tqdm import tqdm
-
+import mmcv
 from nuscenes import NuScenes
 from nuscenes.utils.splits import create_splits_scenes
+from tqdm import tqdm
 
-from data.vector_map import VectorizedLocalMap
 from data.rasterize import rasterize_map
-
-import mmcv
+from data.vector_map import VectorizedLocalMap
 
 
 def main(args):
@@ -59,7 +57,7 @@ def main(args):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Demo Script to turn GT into json submission.')
-    parser.add_argument('--dataroot', type=str, default='dataset/nuScenes/')
+    parser.add_argument('--dataroot', type=str, default='/home/v0392580/planning/nuScenes/v1.0-mini-meta')
     parser.add_argument('--version', type=str, default='v1.0-mini', choices=['v1.0-trainval', 'v1.0-mini'])
     parser.add_argument('--eval_set', type=str, default='mini_val', choices=['train', 'val', 'test', 'mini_train', 'mini_val'])
     parser.add_argument('--output', type=str, default='submission.json')

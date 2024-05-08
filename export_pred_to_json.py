@@ -65,13 +65,13 @@ def main(args):
     model = get_model(args.model, data_conf, True, args.embedding_dim, True, args.angle_class)
     model.load_state_dict(torch.load(args.modelf), strict=False)
     model.cuda()
-    export_to_json(model, val_loader, args.angle_class, args)
+    export_to_json(model, train_loader, args.angle_class, args)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # nuScenes config
-    parser.add_argument('--dataroot', type=str, default='dataset/nuScenes/')
+    parser.add_argument('--dataroot', type=str, default='/home/v0392580/planning/nuScenes/v1.0-mini-meta')
     parser.add_argument('--version', type=str, default='v1.0-mini', choices=['v1.0-trainval', 'v1.0-mini'])
 
     # model config
