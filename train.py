@@ -49,6 +49,8 @@ def train(args):
         'angle_class': args.angle_class,
     }
 
+    print(f"batch_size: {args.bsz} num_workers: {args.nworkers}")
+
     train_loader, val_loader = semantic_dataset(args.version, args.dataroot, data_conf, args.bsz, args.nworkers)
     model = get_model(args.model, data_conf, args.instance_seg, args.embedding_dim, args.direction_pred, args.angle_class)
 
@@ -147,6 +149,9 @@ def train(args):
 
 
 if __name__ == '__main__':
+
+    print(torch.cuda.get_arch_list()) # ['sm_37', 'sm_50', 'sm_60', 'sm_70']
+
     parser = argparse.ArgumentParser(description='HDMapNet training.')
     # logging config
     parser.add_argument("--logdir", type=str, default='./runs')

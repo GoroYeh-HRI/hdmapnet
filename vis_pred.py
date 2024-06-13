@@ -59,17 +59,21 @@ def vis_vector(model, val_loader, angle_class):
             segmentation, embedding, direction = model(imgs.cuda(), trans.cuda(), rots.cuda(), intrins.cuda(),
                                                        post_trans.cuda(), post_rots.cuda(), lidar_data.cuda(),
                                                        lidar_mask.cuda(), car_trans.cuda(), yaw_pitch_roll.cuda())
-            print(f"len segmentation: {len(segmentation.shape)},")
-            print(f"len embedding {len(embedding.shape)}")
-            print(f"len direction: {len(direction.shape)}")
+            print(f"segmentation.shape {segmentation.shape}")
+            print(f"embedding.shape {embedding.shape}")
+            print(f"direction.shape: {direction.shape}")
             
             # Convert segmentation_gt to (float)
             segmentation_gt = segmentation_gt.float()
             # Increase shape from (3,) to (4,)
-            instance_gt = torch.unsqueeze(instance_gt, dim=0)
-            print(f"len segmentation_gt: {len(segmentation_gt.shape)},")
-            print(f"shape instance_gt {len(instance_gt.shape)}")
-            print(f"len direction_gt: {len(direction_gt.shape)}")
+            instance_gt = torch.unsqueeze(instance_gt, dim=0).repeat(segmentation.shape[0],1,1,1) # Need to match the batch size
+            print(f"segmentation_gt.shape {segmentation_gt.shape}") # (4, 4, 200, 400)
+            print(f"instance_gt.shape {instance_gt.shape}") # (1, 4, 200, 400)
+            print(f"direction_gt.shape: {direction_gt.shape}")
+
+            # print(f"len segmentation_gt: {len(segmentation_gt)},")
+            # print(f"instance_gt.shape {instance_gt.shape}")
+            # print(f"direction_gt.shape: {direction_gt.shape}")
 
             for si in range(segmentation.shape[0]):
                 coords, _, _ = vectorize(segmentation[si], embedding[si], direction[si], angle_class)
@@ -141,8 +145,8 @@ if __name__ == '__main__':
     parser.add_argument("--nepochs", type=int, default=30)
     parser.add_argument("--max_grad_norm", type=float, default=5.0)
     parser.add_argument("--pos_weight", type=float, default=2.13)
-    parser.add_argument("--bsz", type=int, default=1)
-    parser.add_argument("--nworkers", type=int, default=1)
+    parser.add_argument("--bsz", type=int, default=4)
+    parser.add_argument("--nworkers", type=int, default=10)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--weight_decay", type=float, default=1e-7)
 
@@ -176,4 +180,6 @@ if __name__ == '__main__':
     parser.add_argument("--scale_direction", type=float, default=0.2)
 
     args = parser.parse_args()
+    print(f"batch_size: {args.bsz} num_workers: {args.nworkers}")
+
     main(args)
