@@ -1,23 +1,25 @@
-# FROM pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel
-FROM ghcr.io/honda-research-institute/hdmapnet:v4
+FROM pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel
+# FROM ghcr.io/honda-research-institute/hdmapnet:v4
 
 # Set the working directory in the container
 # WORKDIR /app
 
 # Copy the requirements file into the container
-# COPY requirement.txt .
+COPY requirement.txt .
 
 # Install the required packages
-# RUN pip3 install -r requirement.txt
+RUN pip3 install -r requirement.txt
+
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Install openGL
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys A4B469963BF863CC
 RUN apt-get update && \
     apt-get install -y curl 
 RUN apt update && apt install -y sudo
-#     apt-get install -y libgl1-mesa-glx
-# RUN apt-get update && \
-# RUN apt-get install -y libglib2.0-dev
+
+RUN apt-get install -y libgl1-mesa-glx
+RUN apt-get install -y libglib2.0-dev
 
 # Copy the rest of the application code into the container
 # COPY . .

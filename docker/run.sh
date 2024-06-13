@@ -8,6 +8,7 @@ docker run \
     --gpus all \
     -v /home/$USER/planning:/home/$USER/planning \
     -w /home/$USER  \
+    --ipc=host \
     --user $(id -u):$(id -g) --privileged \
     -it $image_name bash
     # -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro \
